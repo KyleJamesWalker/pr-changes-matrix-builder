@@ -1,0 +1,11 @@
+input:
+  github_token: null
+  repo: null
+  pr_number: null
+  default_params: null
+  inject:
+    primary_key: null
+    params: null
+  paths: null
+  paths-ignore: null
+  extract_re: null
