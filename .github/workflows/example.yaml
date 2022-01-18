@@ -22,13 +22,15 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           repo: KyleJamesWalker/action-playground
           pr_number: 3
-          default_params:
+          default_params: toJSON(
             foo: bar
             baz: qux
+          )
           inject_primary_key: project_name
-          inject_params:
+          inject_params: toJSON(
             example_1:
               bean: true
+          )
           extract_re: '(?P<project_name>.*)/.*'
 
   echo-params:
