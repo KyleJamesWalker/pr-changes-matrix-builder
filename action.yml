@@ -24,6 +24,10 @@ inputs:
   extract_re:
     description: The regular expression to use to extract keys from the matrix
     default: '(?P<project_name>.*)/.*'
+  paths_include:
+    description: The paths to include from the changes
+  paths_ignore:
+    description: The paths to ignore from the changes
 
 outputs:
   matrix:
