@@ -6,7 +6,7 @@ from typing import List, Dict
 from pr_changes.config import get_config
 
 
-def generate_matrix(changes: List[str]) -> Dict[str, Dict[str, str]]:
+def generate_matrix(changes: List[str]) -> Dict:
     """Generate the matrix of changes.
 
     Args:
@@ -38,7 +38,7 @@ def generate_matrix(changes: List[str]) -> Dict[str, Dict[str, str]]:
                 }
             )
 
-    return matrix
+    return {"params": matrix}
 
 
 def set_output(name: str, value: object) -> None:
