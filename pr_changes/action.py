@@ -38,10 +38,10 @@ def generate_matrix(changes: List[str]) -> Dict:
                 }
             )
 
-    return {"params": matrix}
+    return matrix
 
 
 def set_output(name: str, value: object) -> None:
     """Set an action output via stdout."""
     json_text = json.dumps(value)
-    print(f"::set-output name={name}::'{json_text}'")
+    print(f"::set-output name={name}::{json_text}")

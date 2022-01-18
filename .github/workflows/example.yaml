@@ -41,7 +41,8 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      matrix: ${{ fromJson(needs.pr-changes.outputs.matrix-params ) }}
+      matrix:
+        params: ${{ fromJson(needs.pr-changes.outputs.matrix-params ) }}
 
     steps:
       - name: Echo params
