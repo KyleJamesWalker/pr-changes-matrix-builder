@@ -37,7 +37,7 @@ jobs:
         run: echo ${{ needs.pr-changes.outputs.matrix-params }}
 
   matrix-params:
-    needs: [folder-changes]
+    needs: [pr-changes]
     runs-on: ubuntu-latest
 
     strategy:
