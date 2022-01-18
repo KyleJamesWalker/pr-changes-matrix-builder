@@ -9,3 +9,6 @@ input:
   paths: null
   paths-ignore: null
   extract_re: null
+  paths:
+    include: null
+    ignore: null
