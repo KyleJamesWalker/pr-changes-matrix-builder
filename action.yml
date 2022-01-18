@@ -5,7 +5,7 @@ author: Kyle James Walker
 inputs:
   github_token:
     description: The GitHub token to use for authentication
-    default: ${{ secrets.GITHUB_TOKEN }}
+    default: ${{ github.token }}
   repo:
     description: The repository to use for the matrix
     default: ${{ github.event.repository.full_name }}
@@ -14,13 +14,13 @@ inputs:
     default: ${{ github.event.number }}
   default_params:
     description: The default parameters to inject into the matrix
-    default: {}
+    default: '{}'
   inject_primary_key:
     description: The primary key to inject into the matrix
     default: null
   inject_params:
     description: The parameters to inject into the matrix for a given entry
-    default: {}
+    default: '{}'
   extract_re:
     description: The regular expression to use to extract keys from the matrix
     default: '(?P<project_name>.*)/.*'
