@@ -1,4 +1,4 @@
-name: example
+name: example-empty
 
 on:
   pull_request:
@@ -27,7 +27,7 @@ jobs:
           inject_primary_key: project_name
           inject_params: '{"example_1": {"bean": True}}'
           extract_re: '(?P<project_name>.*)/.*'
-          paths_ignore: '[".github/**"]'
+          paths_ignore: '["**"]'
 
   echo-params:
     needs: [pr-changes]

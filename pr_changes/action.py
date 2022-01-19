@@ -1,10 +1,24 @@
 """PR Changes Primary Action Module."""
 import fnmatch
+import hashlib
 import json
 import re
 
 from typing import List, Dict
 from pr_changes.config import get_config
+
+
+def dict_hash(data: Dict) -> str:
+    """Generate a hash of a dictionary.
+
+    Args:
+        d: Dictionary to hash.
+
+    Returns:
+        Hash of the dictionary.
+
+    """
+    return hashlib.md5(json.dumps(data, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 def generate_matrix(changes: List[str]) -> Dict:
@@ -15,11 +29,10 @@ def generate_matrix(changes: List[str]) -> Dict:
 
     Returns:
         Fully populated matrix of changes with injected values.
+
     """
     matrix = []
-    # TODO: This should be an option to de-dupe
-    #   How should we break up one primary key with many subkeys?
-    primary_keys = set()
+    generated = set()
 
     cfg = get_config()
     default_params = cfg.input.default_params
@@ -33,8 +46,9 @@ def generate_matrix(changes: List[str]) -> Dict:
             continue
 
         cur = extract_re.match(c).groupdict()
-        if cur[inject_primary_key] not in primary_keys:
-            primary_keys.add(cur[inject_primary_key])
+        cur_hash = dict_hash(cur)
+        if cur_hash not in generated:
+            generated.add(cur_hash)
             matrix.append(
                 {
                     **default_params,

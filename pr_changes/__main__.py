@@ -9,20 +9,15 @@ def main():
     cfg = get_config()
 
     # Get the PR changes
-    if False:
-        gh.auth(cfg.input.github_token)
-        files_changed = gh.get_changes(cfg.input.repo, cfg.input.pr_number)
-    # Temporarily use a hardcoded list of changes
-    else:
-        files_changed = [
-            ".github/workflows/test_pr_path.yaml",
-            "example_1/README.md",
-            "example_1/file.txt",
-            "example_2/README.md",
-        ]
+    gh.auth(cfg.input.github_token)
+    files_changed = gh.get_changes(cfg.input.repo, cfg.input.pr_number)
 
+    # Process the files changed
     matrix = action.generate_matrix(files_changed)
+
+    # Output the values for github
     action.set_output("matrix", matrix)
+    action.set_output("matrix-populated", True if matrix else False)
 
 
 if __name__ == "__main__":

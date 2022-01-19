@@ -6,9 +6,11 @@ input:
   inject:
     primary_key: null
     params: null
-  paths: null
-  paths-ignore: null
   extract_re: null
   paths:
     include: null
     ignore: null
+required_keys:
+  - github_token
+  - input.repo
+  - input.pr_number

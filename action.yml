@@ -32,6 +32,8 @@ inputs:
 outputs:
   matrix:
     description: "Json string of matrix params"
+  matrix-populated:
+    description: "Flag to note when there are values in the matrix"
 
 runs:
   using: "docker"

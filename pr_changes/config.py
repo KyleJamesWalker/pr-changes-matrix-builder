@@ -1,4 +1,4 @@
-"""Configuration module"""
+"""Configuration module."""
 import yamlsettings
 
 __CONFIG = None
@@ -19,7 +19,7 @@ def __validate__(cfg: yamlsettings.yamldict.YAMLDict):
     check_paths = [x.split(".") for x in cfg.get("required_keys", [])]
 
     def _null_traverse(path, node):
-        """Yamlsettings traverse callback"""
+        """Yamlsettings traverse callback."""
         if node is None and any(path[: len(x)] == x for x in check_paths):
             raise RuntimeError("{} is not set".format(".".join(path)))
         return None
@@ -28,7 +28,7 @@ def __validate__(cfg: yamlsettings.yamldict.YAMLDict):
 
 
 def __process_config__(cfg: yamlsettings.yamldict.YAMLDict):
-    """Process the configuration
+    """Process the configuration.
 
     Args:
         cfg: Configuration Settings
@@ -40,10 +40,21 @@ def __process_config__(cfg: yamlsettings.yamldict.YAMLDict):
 
 
 def get_config():
-    """Get the configuration"""
+    """Get the configuration."""
     global __CONFIG
 
     if __CONFIG is None:
         __CONFIG = __process_config__(yamlsettings.load("pkg://pr_changes"))
 
     return __CONFIG
+
+
+def reset():
+    """Reset the configuration."""
+    global __CONFIG
+    __CONFIG = None
+
+    # Flush YamlSettings Persistence
+    settings_persistence = yamlsettings.registry.get_extension("pkg")._persistence
+    if "pr_changes:settings.yaml" in settings_persistence:
+        del settings_persistence["pr_changes:settings.yaml"]
