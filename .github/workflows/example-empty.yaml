@@ -43,7 +43,7 @@ jobs:
 
   matrix-params:
     needs: [pr-changes]
-    if: needs.pr-changes.outputs.matrix-populated
+    if: needs.pr-changes.outputs.matrix-populated == 'true'
     runs-on: ubuntu-latest
 
     strategy:
