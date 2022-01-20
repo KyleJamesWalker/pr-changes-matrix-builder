@@ -1,0 +1,56 @@
+name: example
+
+on:
+  pull_request:
+    types: [edited, opened, synchronize, reopened]
+    branches: [master]
+
+jobs:
+
+  pr-changes:
+    runs-on: ubuntu-latest
+
+    outputs:
+      matrix-params: ${{ steps.matrix-builder.outputs.matrix }}
+      matrix-populated: ${{ steps.matrix-builder.outputs.matrix-populated }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ./
+        id: matrix-builder
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          repo: KyleJamesWalker/action-playground
+          pr_number: 3
+          default_params: '{"foo": "bar", "baz": "qux"}'
+          inject_primary_key: project_name
+          inject_params: '{"example_1": {"bean": True}}'
+          extract_re: '(?P<project_name>.*)/.*'
+          paths_ignore: '[".github/**"]'
+
+  echo-params:
+    needs: [pr-changes]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Echo matrix-params outputs
+        run: echo ${{ needs.pr-changes.outputs.matrix-params }}
+
+      - name: Echo matrix-populated outputs
+        run: echo ${{ needs.pr-changes.outputs.matrix-populated }}
+
+  matrix-params:
+    needs: [pr-changes]
+    if: needs.pr-changes.outputs.matrix-populated == 'true'
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        params: ${{ fromJson(needs.pr-changes.outputs.matrix-params ) }}
+
+    steps:
+      - name: Echo params
+        run: |
+          echo "${{ matrix.params.project_name }} - ${{ matrix.params.foo }}, ${{ matrix.params.baz }}, ${{ matrix.params.beans }}"

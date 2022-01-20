@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  app: &base_app
+    image: ${imageName:-kylejameswalker/pr-changes-matrix-builder:latest}
+    build:
+      context: .
+
+  test:
+    image: ${imageName:-kylejameswalker/pr-changes-matrix-builder-pytest:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    env_file:
+      - .env
+    volumes:
+      - ./pr_changes:/code/pr_changes
+      - ./reports:/code/reports
+      - ./tests:/code/tests
+    command: ["pytest"]

@@ -1,0 +1,40 @@
+name: PR Changes Matrix Builder
+description: Builds a dynamic matrix based on PR changes
+author: Kyle James Walker
+
+inputs:
+  github_token:
+    description: The GitHub token to use for authentication
+    default: ${{ github.token }}
+  repo:
+    description: The repository to use for the matrix
+    default: ${{ github.event.repository.full_name }}
+  pr_number:
+    description: The PR number to use for the matrix
+    default: ${{ github.event.number }}
+  default_params:
+    description: The default parameters to inject into the matrix
+    default: '{}'
+  inject_primary_key:
+    description: The primary key to inject into the matrix
+    default: null
+  inject_params:
+    description: The parameters to inject into the matrix for a given entry
+    default: '{}'
+  extract_re:
+    description: The regular expression to use to extract keys from the matrix
+    default: '(?P<project_name>.*)/.*'
+  paths_include:
+    description: The paths to include from the changes
+  paths_ignore:
+    description: The paths to ignore from the changes
+
+outputs:
+  matrix:
+    description: "Json string of matrix params"
+  matrix-populated:
+    description: "Flag to note when there are values in the matrix"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
