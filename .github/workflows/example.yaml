@@ -3,7 +3,7 @@ name: example
 on:
   pull_request:
     types: [edited, opened, synchronize, reopened]
-    branches: [master]
+    branches: [main]
 
 jobs:
 
