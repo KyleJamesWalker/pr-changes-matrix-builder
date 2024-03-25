@@ -1,5 +1,6 @@
 """Entry point for the pr-changes-matrix-builder."""
-from pr_changes import gh, action
+
+from pr_changes import action, gh
 from pr_changes.config import get_config
 
 

@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 RUN apt update && apt install -y \
     curl \
@@ -15,7 +15,7 @@ RUN apt update && apt install -y \
 
 WORKDIR /code
 
-COPY setup.py setup.cfg /code/
+COPY setup.py pyproject.toml /code/
 RUN pip install -e "."
 RUN pip check
 

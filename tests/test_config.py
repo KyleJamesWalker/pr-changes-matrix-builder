@@ -1,4 +1,5 @@
 """Test Configuration."""
+
 import pytest
 
 from pr_changes.config import get_config

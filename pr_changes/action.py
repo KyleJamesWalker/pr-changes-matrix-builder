@@ -1,4 +1,5 @@
 """PR Changes Primary Action Module."""
+
 import fnmatch
 import hashlib
 import json
@@ -6,17 +7,19 @@ import os
 import re
 import sys
 
-from typing import List, Dict
 from pr_changes.config import get_config
+from typing import Dict, List
 
 
 def dict_hash(data: Dict) -> str:
     """Generate a hash of a dictionary.
 
     Args:
+    ----
         d: Dictionary to hash.
 
     Returns:
+    -------
         Hash of the dictionary.
 
     """
@@ -27,9 +30,11 @@ def generate_matrix(changes: List[str]) -> Dict:
     """Generate the matrix of changes.
 
     Args:
+    ----
         changes: List of changed files.
 
     Returns:
+    -------
         Fully populated matrix of changes with injected values.
 
     """
@@ -78,9 +83,11 @@ def include_file(fn: str) -> bool:
     """Check if the filename is an included match.
 
     Args:
+    ----
         fn: Filename to check.
 
     Returns:
+    -------
         True if the file should be included.
 
     """
@@ -99,9 +106,11 @@ def ignore_file(fn: str) -> bool:
     """Check if the filename is an excluded match.
 
     Args:
+    ----
         fn: Filename to check.
 
     Returns:
+    -------
         True if the file should be excluded.
 
     """

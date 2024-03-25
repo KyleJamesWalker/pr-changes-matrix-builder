@@ -1,6 +1,7 @@
 """Pytest conftest file."""
-import pytest
+
 import pr_changes.config
+import pytest
 import yamlsettings
 
 

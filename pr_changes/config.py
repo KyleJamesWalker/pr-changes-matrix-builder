@@ -1,4 +1,5 @@
 """Configuration module."""
+
 import yamlsettings
 
 __CONFIG = None
@@ -10,9 +11,11 @@ def __validate__(cfg: yamlsettings.yamldict.YAMLDict):
     Asserts if a value in the required_keys paths is not defined
 
     Args:
+    ----
         cfg: Configuration Settings
 
     Raises:
+    ------
         RuntimeError: When a required key is null
 
     """
@@ -31,6 +34,7 @@ def __process_config__(cfg: yamlsettings.yamldict.YAMLDict):
     """Process the configuration.
 
     Args:
+    ----
         cfg: Configuration Settings
 
     """

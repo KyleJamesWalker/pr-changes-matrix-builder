@@ -11,8 +11,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.test
-    env_file:
-      - .env
     volumes:
       - ./pr_changes:/code/pr_changes
       - ./reports:/code/reports
