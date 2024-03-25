@@ -2,7 +2,9 @@
 import fnmatch
 import hashlib
 import json
+import os
 import re
+import sys
 
 from typing import List, Dict
 from pr_changes.config import get_config
@@ -61,9 +63,15 @@ def generate_matrix(changes: List[str]) -> Dict:
 
 
 def set_output(name: str, value: object) -> None:
-    """Set an action output via stdout."""
+    """Set an action output via environment file."""
     json_text = json.dumps(value)
-    print(f"::set-output name={name}::{json_text}")
+    output_fn = os.getenv("GITHUB_OUTPUT")
+    output_file = open(os.getenv("GITHUB_OUTPUT"), "a") if output_fn else sys.stdout
+    output_file.write(f"{name}={json_text}\n")
+
+    # Only close the file it it's not stdout
+    if output_fn:
+        output_file.close()
 
 
 def include_file(fn: str) -> bool:
