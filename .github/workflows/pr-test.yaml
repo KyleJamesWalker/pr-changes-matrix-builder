@@ -16,11 +16,14 @@ jobs:
       - name: Install Python 3
         uses: actions/setup-python@v1
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip pytest .[all]
+          pip install --upgrade pip pytest pre-commit .[all]
 
       - name: Run tests with pytest
         run: pytest
+
+      - name: Run pre-commit
+        run: pre-commit run --show-diff-on-failure --color=always --all-files
