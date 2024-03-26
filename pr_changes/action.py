@@ -26,7 +26,7 @@ def dict_hash(data: Dict) -> str:
     return hashlib.md5(json.dumps(data, sort_keys=True).encode("utf-8")).hexdigest()
 
 
-def generate_matrix(changes: List[str]) -> Dict:
+def generate_matrix(changes: List[str]) -> List[Dict]:
     """Generate the matrix of changes.
 
     Args:
@@ -52,7 +52,12 @@ def generate_matrix(changes: List[str]) -> Dict:
         if ignore_file(c) or not include_file(c):
             continue
 
-        cur = extract_re.match(c).groupdict()
+        cur_match = extract_re.match(c)
+        if cur_match is None:
+            print("Warning: Unable to extract data from filename [bad regex]: ", c)
+            continue
+
+        cur = cur_match.groupdict()
         cur_hash = dict_hash(cur)
         if cur_hash not in generated:
             generated.add(cur_hash)
