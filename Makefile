@@ -7,5 +7,5 @@ build:
 	docker-compose build app test
 
 test:
-	mkdir reports
+	mkdir -p reports
 	docker-compose run --rm test
