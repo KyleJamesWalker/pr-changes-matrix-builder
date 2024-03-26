@@ -16,6 +16,7 @@ RUN apt update && apt install -y \
 WORKDIR /code
 
 COPY setup.py pyproject.toml /code/
+COPY pr_changes/__init__.py /code/pr_changes/__init__.py
 RUN pip install -e "."
 RUN pip check
 
