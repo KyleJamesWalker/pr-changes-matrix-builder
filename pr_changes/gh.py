@@ -1,4 +1,5 @@
 """Handle all the Github CLI Class."""
+
 import subprocess
 import sys
 
