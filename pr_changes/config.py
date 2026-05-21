@@ -2,12 +2,15 @@
 
 import json
 import os
+
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 
 @dataclass
 class Config:
+    """Action configuration loaded from INPUT_* environment variables."""
+
     github_token: str
     repo: str
     pr_number: str
@@ -55,6 +58,7 @@ def _load() -> Config:
 
 
 def get_config() -> Config:
+    """Return the cached Config, loading from environment on first call."""
     global _config
     if _config is None:
         _config = _load()
@@ -62,5 +66,6 @@ def get_config() -> Config:
 
 
 def reset() -> None:
+    """Clear the cached Config so the next call to get_config re-reads the environment."""
     global _config
     _config = None

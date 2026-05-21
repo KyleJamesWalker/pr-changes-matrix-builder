@@ -7,12 +7,12 @@ import os
 import re
 import sys
 
-from typing import Dict, List
-
 from pr_changes.config import get_config
+from typing import Dict, List
 
 
 def dict_hash(data: Dict) -> str:
+    """Return a stable MD5 hex digest of a JSON-serializable dict."""
     return hashlib.md5(json.dumps(data, sort_keys=True).encode("utf-8")).hexdigest()
 
 

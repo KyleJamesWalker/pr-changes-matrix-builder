@@ -6,17 +6,20 @@ from pr_changes.config import get_config
 
 
 def test_default_config(configuration):
+    """Verify default fixture config loads with expected pr_number."""
     cfg = get_config()
     assert cfg.pr_number == "3"
 
 
 def test_config_required_values_error(configuration):
+    """Verify RuntimeError is raised when required env vars are missing."""
     configuration.environ.clear()
     with pytest.raises(RuntimeError):
         get_config()
 
 
 def test_new_config(configuration):
+    """Verify all config fields are read correctly from env vars."""
     configuration.update_env(
         {
             "INPUT_GITHUB_TOKEN": "test_token",
