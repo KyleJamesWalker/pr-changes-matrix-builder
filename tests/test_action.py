@@ -1,5 +1,4 @@
 """Test Action."""
-
 from pr_changes.action import generate_matrix
 
 
@@ -25,6 +24,7 @@ def test_action_simple_ignore_workflow_changes(configuration):
     """Verify workflow changes are not surfaced."""
     configuration.update_env(
         {
+            "INPUT_GITHUB_TOKEN": "test_token",
             "INPUT_PR_NUMBER": "3",
             "INPUT_REPO": "TestUser/testrepo",
             "INPUT_DEFAULT_PARAMS": '{"foo": "bar", "baz": "qux"}',
@@ -53,6 +53,7 @@ def test_action_simple_include_folders_with_txt_changes(configuration):
     """Verify workflow changes are not surfaced."""
     configuration.update_env(
         {
+            "INPUT_GITHUB_TOKEN": "test_token",
             "INPUT_PR_NUMBER": "3",
             "INPUT_REPO": "TestUser/testrepo",
             "INPUT_DEFAULT_PARAMS": '{"foo": "bar", "baz": "qux"}',
@@ -86,6 +87,7 @@ def test_many_combinations(configuration):
     """Test many changes in one folder."""
     configuration.update_env(
         {
+            "INPUT_GITHUB_TOKEN": "test_token",
             "INPUT_PR_NUMBER": "3",
             "INPUT_REPO": "TestUser/testrepo",
             "INPUT_DEFAULT_PARAMS": '{"foo": "bar", "baz": "qux"}',
@@ -124,6 +126,7 @@ def test_action_no_changes(configuration):
     """Verify workflow surfaces nothing."""
     configuration.update_env(
         {
+            "INPUT_GITHUB_TOKEN": "test_token",
             "INPUT_PR_NUMBER": "3",
             "INPUT_REPO": "TestUser/testrepo",
             "INPUT_DEFAULT_PARAMS": '{"foo": "bar", "baz": "qux"}',
