@@ -1,3 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pr_changes"
+version = "0.0.2"
+description = "Build a matrix from a PR"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+    "pytest-cov>=6.0",
+    "pytest-xdist>=3.0",
+]
+dev = ["ipython", "debugpy"]
+
+[project.scripts]
+pr_changes = "pr_changes.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["pr_changes*"]
+
 [tool.black]
 line-length = 88
 exclude = '''
@@ -14,8 +39,6 @@ exclude = '''
     | build
     | dist
   )/
-  | foo.py           # also separately exclude a file named foo.py in
-                     # the root of the project
 )
 '''
 
@@ -44,7 +67,7 @@ target-version = "py311"
 max-complexity = 20
 
 [tool.isort]
-skip = [".gitignore", ".dockerignore", ".venv"]
+skip = [".gitignore", ".venv"]
 no_sections = true
 lines_between_types = 1
 multi_line_output = 3
