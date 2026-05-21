@@ -1,8 +1,0 @@
-FROM kylejameswalker/pr-changes-matrix-builder:latest
-
-RUN pip install -e ".[all]"
-RUN pip check
-
-COPY tests/ /code/tests
-
-CMD pytest

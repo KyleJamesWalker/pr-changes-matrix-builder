@@ -13,28 +13,55 @@ inputs:
     description: The PR number to use for the matrix
     default: ${{ github.event.number }}
   default_params:
-    description: The default parameters to inject into the matrix
+    description: Default parameters merged into every matrix entry
     default: '{}'
   inject_primary_key:
-    description: The primary key to inject into the matrix
-    default: null
+    description: Extracted regex group used as a lookup key into inject_params
+    default: ''
   inject_params:
-    description: The parameters to inject into the matrix for a given entry
+    description: Per-entry parameter overrides keyed by inject_primary_key value
     default: '{}'
   extract_re:
-    description: The regular expression to use to extract keys from the matrix
+    description: Python regex with named groups to extract from each changed file path
     default: '(?P<project_name>.*)/.*'
   paths_include:
-    description: The paths to include from the changes
+    description: JSON array of glob patterns — only matching files are considered
+    default: 'null'
   paths_ignore:
-    description: The paths to ignore from the changes
+    description: JSON array of glob patterns — matching files are excluded
+    default: 'null'
 
 outputs:
   matrix:
-    description: "Json string of matrix params"
+    description: "JSON array of matrix entries"
+    value: ${{ steps.run.outputs.matrix }}
   matrix-populated:
-    description: "Flag to note when there are values in the matrix"
+    description: "'true' if matrix contains entries, 'false' if empty"
+    value: ${{ steps.run.outputs.matrix-populated }}
 
 runs:
-  using: "docker"
-  image: "Dockerfile"
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: "pip"
+
+    - name: Install
+      run: pip install --quiet "${{ github.action_path }}"
+      shell: bash
+
+    - name: Generate matrix
+      id: run
+      run: pr_changes
+      shell: bash
+      env:
+        INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
+        INPUT_REPO: ${{ inputs.repo }}
+        INPUT_PR_NUMBER: ${{ inputs.pr_number }}
+        INPUT_DEFAULT_PARAMS: ${{ inputs.default_params }}
+        INPUT_INJECT_PRIMARY_KEY: ${{ inputs.inject_primary_key }}
+        INPUT_INJECT_PARAMS: ${{ inputs.inject_params }}
+        INPUT_EXTRACT_RE: ${{ inputs.extract_re }}
+        INPUT_PATHS_INCLUDE: ${{ inputs.paths_include }}
+        INPUT_PATHS_IGNORE: ${{ inputs.paths_ignore }}

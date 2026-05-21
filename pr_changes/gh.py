@@ -1,7 +1,9 @@
-"""Handle all the Github CLI Class."""
+"""Handle all the Github CLI calls."""
 
 import subprocess
 import sys
+
+from typing import List
 
 
 def auth(github_token: str) -> None:
@@ -12,16 +14,20 @@ def auth(github_token: str) -> None:
     result = subprocess.run(
         ["gh", "auth", "login", "--with-token"],
         stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         input=github_token.encode(),
     )
 
-    print(result.stdout.decode("utf-8"))
+    if result.stdout:
+        print(result.stdout.decode("utf-8"))
+    if result.stderr:
+        print(result.stderr.decode("utf-8"), file=sys.stderr)
 
     if result.returncode != 0:
         sys.exit(result.returncode)
 
 
-def get_changes(repo: str, pr_number: int) -> None:
+def get_changes(repo: str, pr_number: str) -> List[str]:
     """Get all the changes for a pull request."""
     cmd = [
         "gh",
@@ -35,12 +41,14 @@ def get_changes(repo: str, pr_number: int) -> None:
         "--jq",
         ".files.[].path",
     ]
-    result = subprocess.run(cmd, stdout=subprocess.PIPE)
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     if result.returncode != 0:
+        if result.stderr:
+            print(result.stderr.decode("utf-8"), file=sys.stderr)
         sys.exit(result.returncode)
 
-    changes = result.stdout.decode("utf-8").strip().split("\n")
-    print("Changes detected:\n  * ", "\n  * ".join(changes))
+    changes = [c for c in result.stdout.decode("utf-8").strip().split("\n") if c]
+    print("Changes detected:\n  * ", "\n  * ".join(changes) if changes else "(none)")
 
     return changes

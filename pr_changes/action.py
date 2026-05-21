@@ -12,43 +12,22 @@ from typing import Dict, List
 
 
 def dict_hash(data: Dict) -> str:
-    """Generate a hash of a dictionary.
-
-    Args:
-    ----
-        d: Dictionary to hash.
-
-    Returns:
-    -------
-        Hash of the dictionary.
-
-    """
+    """Return a stable MD5 hex digest of a JSON-serializable dict."""
     return hashlib.md5(json.dumps(data, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 def generate_matrix(changes: List[str]) -> List[Dict]:
-    """Generate the matrix of changes.
-
-    Args:
-    ----
-        changes: List of changed files.
-
-    Returns:
-    -------
-        Fully populated matrix of changes with injected values.
-
-    """
+    """Generate the matrix of changes."""
     matrix = []
     generated = set()
 
     cfg = get_config()
-    default_params = cfg.input.default_params
-    inject_params = cfg.input.inject.params
-    inject_primary_key = cfg.input.inject.primary_key
-    extract_re = re.compile(cfg.input.extract_re)
+    default_params = cfg.default_params
+    inject_params = cfg.inject_params
+    inject_primary_key = cfg.inject_primary_key
+    extract_re = re.compile(cfg.extract_re)
 
     for c in changes:
-        # Skip files that are ignored or not included
         if ignore_file(c) or not include_file(c):
             continue
 
@@ -61,10 +40,11 @@ def generate_matrix(changes: List[str]) -> List[Dict]:
         cur_hash = dict_hash(cur)
         if cur_hash not in generated:
             generated.add(cur_hash)
+            lookup_key = cur.get(inject_primary_key, "") if inject_primary_key else ""
             matrix.append(
                 {
                     **default_params,
-                    **inject_params.get(cur[inject_primary_key], {}),
+                    **inject_params.get(lookup_key, {}),
                     **cur,
                 }
             )
@@ -74,54 +54,23 @@ def generate_matrix(changes: List[str]) -> List[Dict]:
 
 def set_output(name: str, value: object) -> None:
     """Set an action output via environment file."""
-    json_text = json.dumps(value)
+    line = f"{name}={json.dumps(value)}\n"
     output_fn = os.getenv("GITHUB_OUTPUT")
-    output_file = open(os.getenv("GITHUB_OUTPUT"), "a") if output_fn else sys.stdout
-    output_file.write(f"{name}={json_text}\n")
-
-    # Only close the file it it's not stdout
     if output_fn:
-        output_file.close()
+        with open(output_fn, "a") as f:
+            f.write(line)
+    else:
+        sys.stdout.write(line)
 
 
 def include_file(fn: str) -> bool:
-    """Check if the filename is an included match.
-
-    Args:
-    ----
-        fn: Filename to check.
-
-    Returns:
-    -------
-        True if the file should be included.
-
-    """
-    result = False
-    if get_config().input.paths.include is None:
-        # Default is all files are included
-        result |= True
-
-    for m in get_config().input.paths.include or []:
-        result |= fnmatch.fnmatch(fn, m)
-
-    return result
+    """Return True if fn should be included."""
+    paths_include = get_config().paths_include
+    if paths_include is None:
+        return True
+    return any(fnmatch.fnmatch(fn, m) for m in paths_include)
 
 
 def ignore_file(fn: str) -> bool:
-    """Check if the filename is an excluded match.
-
-    Args:
-    ----
-        fn: Filename to check.
-
-    Returns:
-    -------
-        True if the file should be excluded.
-
-    """
-    result = False
-
-    for m in get_config().input.paths.ignore or []:
-        result |= fnmatch.fnmatch(fn, m)
-
-    return result
+    """Return True if fn should be excluded."""
+    return any(fnmatch.fnmatch(fn, m) for m in (get_config().paths_ignore or []))

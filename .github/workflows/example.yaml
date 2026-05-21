@@ -1,5 +1,11 @@
 name: example
 
+# Demonstrates the standard usage pattern:
+# 1. Build a matrix from changed top-level folders
+# 2. Skip .github/** changes
+# 3. Inject per-component params via inject_params
+# 4. Only run the matrix job when the matrix is populated
+
 on:
   pull_request:
     types: [edited, opened, synchronize, reopened]
@@ -15,25 +21,28 @@ jobs:
       matrix-populated: ${{ steps.matrix-builder.outputs.matrix-populated }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: ./
         id: matrix-builder
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # repo and pr_number default to the current PR — override only when inspecting a different repo
           repo: KyleJamesWalker/action-playground
           pr_number: 3
+          # default_params are merged into every matrix entry
           default_params: '{"foo": "bar", "baz": "qux"}'
+          # inject_primary_key + inject_params let you attach per-component config
           inject_primary_key: project_name
-          inject_params: '{"example_1": {"bean": True}}'
+          inject_params: '{"example_1": {"bean": true}}'
+          # extract_re uses named groups; each group becomes a matrix field
           extract_re: '(?P<project_name>.*)/.*'
           paths_ignore: '[".github/**"]'
 
+  # Optional debug job — useful during initial setup to inspect matrix output
   echo-params:
     needs: [pr-changes]
-
     runs-on: ubuntu-latest
-
     steps:
       - name: Echo matrix-params outputs
         run: echo ${{ needs.pr-changes.outputs.matrix-params }}
@@ -41,16 +50,19 @@ jobs:
       - name: Echo matrix-populated outputs
         run: echo ${{ needs.pr-changes.outputs.matrix-populated }}
 
+  # The real work: one job instance per changed component
+  # matrix-populated guard prevents errors when fromJson() receives an empty array
   matrix-params:
     needs: [pr-changes]
     if: needs.pr-changes.outputs.matrix-populated == 'true'
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        params: ${{ fromJson(needs.pr-changes.outputs.matrix-params ) }}
+        params: ${{ fromJson(needs.pr-changes.outputs.matrix-params) }}
 
     steps:
       - name: Echo params
         run: |
-          echo "${{ matrix.params.project_name }} - ${{ matrix.params.foo }}, ${{ matrix.params.baz }}, ${{ matrix.params.beans }}"
+          echo "${{ matrix.params.project_name }} - ${{ matrix.params.foo }}, ${{ matrix.params.baz }}, ${{ matrix.params.bean }}"

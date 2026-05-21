@@ -1,64 +1,71 @@
 """Configuration module."""
 
-import yamlsettings
+import json
+import os
 
-__CONFIG = None
-
-
-def __validate__(cfg: yamlsettings.yamldict.YAMLDict):
-    """Verify all values references in required_keys have been defined.
-
-    Asserts if a value in the required_keys paths is not defined
-
-    Args:
-    ----
-        cfg: Configuration Settings
-
-    Raises:
-    ------
-        RuntimeError: When a required key is null
-
-    """
-    check_paths = [x.split(".") for x in cfg.get("required_keys", [])]
-
-    def _null_traverse(path, node):
-        """Yamlsettings traverse callback."""
-        if node is None and any(path[: len(x)] == x for x in check_paths):
-            raise RuntimeError("{} is not set".format(".".join(path)))
-        return None
-
-    cfg.traverse(_null_traverse)
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
 
 
-def __process_config__(cfg: yamlsettings.yamldict.YAMLDict):
-    """Process the configuration.
+@dataclass
+class Config:
+    """Action configuration loaded from INPUT_* environment variables."""
 
-    Args:
-    ----
-        cfg: Configuration Settings
-
-    """
-    __validate__(cfg)
-
-    return cfg
-
-
-def get_config():
-    """Get the configuration."""
-    global __CONFIG
-
-    if __CONFIG is None:
-        __CONFIG = __process_config__(yamlsettings.load("pkg://pr_changes"))
-
-    return __CONFIG
+    github_token: str
+    repo: str
+    pr_number: str
+    default_params: Dict[str, Any] = field(default_factory=dict)
+    inject_primary_key: Optional[str] = None
+    inject_params: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    extract_re: str = "(?P<project_name>.*)/.*"
+    paths_include: Optional[List[str]] = None
+    paths_ignore: Optional[List[str]] = None
 
 
-def reset():
-    """Reset the configuration."""
-    global __CONFIG
-    __CONFIG = None
+_config: Optional[Config] = None
 
-    # Flush YamlSettings Persistence
-    settings_persistence = yamlsettings.registry.get_extension("pkg")._persistence
-    if "pr_changes:settings.yaml" in settings_persistence:
-        del settings_persistence["pr_changes:settings.yaml"]
+
+def _load() -> Config:
+    def _env(key: str) -> Optional[str]:
+        return os.environ.get(key) or None
+
+    def _json(key: str, default: Any) -> Any:
+        val = _env(key)
+        return json.loads(val) if val is not None else default
+
+    token = _env("INPUT_GITHUB_TOKEN")
+    repo = _env("INPUT_REPO")
+    pr_number = _env("INPUT_PR_NUMBER")
+
+    if not token:
+        raise RuntimeError("INPUT_GITHUB_TOKEN is not set")
+    if not repo:
+        raise RuntimeError("INPUT_REPO is not set")
+    if not pr_number:
+        raise RuntimeError("INPUT_PR_NUMBER is not set")
+
+    return Config(
+        github_token=token,
+        repo=repo,
+        pr_number=pr_number,
+        default_params=_json("INPUT_DEFAULT_PARAMS", {}),
+        inject_primary_key=_env("INPUT_INJECT_PRIMARY_KEY"),
+        inject_params=_json("INPUT_INJECT_PARAMS", {}),
+        extract_re=_env("INPUT_EXTRACT_RE") or "(?P<project_name>.*)/.*",
+        paths_include=_json("INPUT_PATHS_INCLUDE", None),
+        paths_ignore=_json("INPUT_PATHS_IGNORE", None),
+    )
+
+
+def get_config() -> Config:
+    """Return the cached Config, loading from environment on first call."""
+    global _config
+    if _config is None:
+        _config = _load()
+    return _config
+
+
+def reset() -> None:
+    """Clear the cached Config so the next call to get_config re-reads the environment."""
+    global _config
+    _config = None

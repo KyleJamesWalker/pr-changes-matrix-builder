@@ -6,23 +6,23 @@ from pr_changes.config import get_config
 
 
 def test_default_config(configuration):
-    """Test the default configuration test values."""
+    """Verify default fixture config loads with expected pr_number."""
     cfg = get_config()
-    assert cfg.input.pr_number == 3
+    assert cfg.pr_number == "3"
 
 
 def test_config_required_values_error(configuration):
-    """Test the default configuration test values."""
+    """Verify RuntimeError is raised when required env vars are missing."""
     configuration.environ.clear()
-
     with pytest.raises(RuntimeError):
         get_config()
 
 
 def test_new_config(configuration):
-    """Test a full configuration."""
+    """Verify all config fields are read correctly from env vars."""
     configuration.update_env(
         {
+            "INPUT_GITHUB_TOKEN": "test_token",
             "INPUT_PR_NUMBER": "4",
             "INPUT_REPO": "TestUser/testrepo2",
             "INPUT_DEFAULT_PARAMS": '{"foo": "bar2", "baz": "qux2"}',
@@ -32,9 +32,9 @@ def test_new_config(configuration):
         }
     )
     cfg = get_config()
-    assert cfg.input.pr_number == 4
-    assert cfg.input.repo == "TestUser/testrepo2"
-    assert cfg.input.default_params == {"foo": "bar2", "baz": "qux2"}
-    assert cfg.input.inject.primary_key == "project_name2"
-    assert cfg.input.inject.params == {"example_2": {"beans:": True}}
-    assert cfg.input.extract_re == r"(?P<project_name2>.*)/.*"
+    assert cfg.pr_number == "4"
+    assert cfg.repo == "TestUser/testrepo2"
+    assert cfg.default_params == {"foo": "bar2", "baz": "qux2"}
+    assert cfg.inject_primary_key == "project_name2"
+    assert cfg.inject_params == {"example_2": {"beans:": True}}
+    assert cfg.extract_re == r"(?P<project_name2>.*)/.*"

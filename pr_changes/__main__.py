@@ -9,16 +9,13 @@ def main():
     print("Generating PR changes")
     cfg = get_config()
 
-    # Get the PR changes
-    gh.auth(cfg.input.github_token)
-    files_changed = gh.get_changes(cfg.input.repo, cfg.input.pr_number)
+    gh.auth(cfg.github_token)
+    files_changed = gh.get_changes(cfg.repo, cfg.pr_number)
 
-    # Process the files changed
     matrix = action.generate_matrix(files_changed)
 
-    # Output the values for github
     action.set_output("matrix", matrix)
-    action.set_output("matrix-populated", True if matrix else False)
+    action.set_output("matrix-populated", bool(matrix))
 
 
 if __name__ == "__main__":
