@@ -1,5 +1,11 @@
 name: example-empty
 
+# Demonstrates the empty-matrix case:
+# When paths_ignore matches all changed files, matrix-populated is 'false'
+# and the matrix-params job is skipped entirely.
+# This is the expected behavior when only non-component files change
+# (e.g. a PR that only touches docs or CI config).
+
 on:
   pull_request:
     types: [edited, opened, synchronize, reopened]
@@ -15,7 +21,7 @@ jobs:
       matrix-populated: ${{ steps.matrix-builder.outputs.matrix-populated }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: ./
         id: matrix-builder
@@ -25,32 +31,35 @@ jobs:
           pr_number: 3
           default_params: '{"foo": "bar", "baz": "qux"}'
           inject_primary_key: project_name
-          inject_params: '{"example_1": {"bean": True}}'
+          inject_params: '{"example_1": {"bean": true}}'
           extract_re: '(?P<project_name>.*)/.*'
+          # paths_ignore: ["**"] excludes every file → empty matrix
           paths_ignore: '["**"]'
 
   echo-params:
     needs: [pr-changes]
-
     runs-on: ubuntu-latest
-
     steps:
       - name: Echo matrix-params outputs
+        # Will print: []
         run: echo ${{ needs.pr-changes.outputs.matrix-params }}
 
       - name: Echo matrix-populated outputs
+        # Will print: false
         run: echo ${{ needs.pr-changes.outputs.matrix-populated }}
 
+  # This job is skipped because matrix-populated is 'false'
   matrix-params:
     needs: [pr-changes]
     if: needs.pr-changes.outputs.matrix-populated == 'true'
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        params: ${{ fromJson(needs.pr-changes.outputs.matrix-params ) }}
+        params: ${{ fromJson(needs.pr-changes.outputs.matrix-params) }}
 
     steps:
       - name: Echo params
         run: |
-          echo "${{ matrix.params.project_name }} - ${{ matrix.params.foo }}, ${{ matrix.params.baz }}, ${{ matrix.params.beans }}"
+          echo "${{ matrix.params.project_name }} - ${{ matrix.params.foo }}, ${{ matrix.params.baz }}, ${{ matrix.params.bean }}"
