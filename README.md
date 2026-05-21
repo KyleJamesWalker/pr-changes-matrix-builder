@@ -64,6 +64,7 @@ jobs:
   build:
     needs: [pr-changes]
     if: needs.pr-changes.outputs.matrix-populated == 'true'
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -172,7 +173,9 @@ jobs:
   tag-create:
     needs: [pr-changes]
     if: needs.pr-changes.outputs.matrix-populated == 'true'
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         params: ${{ fromJson(needs.pr-changes.outputs.matrix-params) }}
     steps:
@@ -191,6 +194,7 @@ When all matrix entries write to shared state — like committing version bumps 
   version-bump:
     needs: [pr-changes]
     if: needs.pr-changes.outputs.matrix-populated == 'true'
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       max-parallel: 1   # prevent concurrent git pushes to the same branch
