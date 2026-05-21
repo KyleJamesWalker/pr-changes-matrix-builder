@@ -28,5 +28,5 @@ jobs:
       - name: Update floating tag
         if: steps.semver.outputs.major != ''
         run: |
-          git tag -f ${{ steps.semver.outputs.major }}
-          git push origin ${{ steps.semver.outputs.major }} --force
+          git tag -f "${{ steps.semver.outputs.major }}"
+          git push origin "${{ steps.semver.outputs.major }}" --force
